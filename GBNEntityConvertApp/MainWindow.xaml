@@ -1,0 +1,42 @@
+﻿<Window x:Class="GBNEntityConvertApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GBNEntityConvertApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="376" Width="781">
+    <Grid Background="AntiqueWhite" Margin="10,0,3.667,-3.333">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="0*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="btnSelectFile" Content="Add" HorizontalAlignment="Left" Margin="39,253,0,0" VerticalAlignment="Top" Width="220" Height="23" Click="BtnSelectFile_Click" Grid.Column="1"/>
+
+        <ListBox SelectionChanged="ListboxSelectedFiels_SelectionChanged" x:Name="listboxSelectedFile" HorizontalAlignment="Left" Height="215" Margin="39,22,0,0" VerticalAlignment="Top" Width="220" Grid.Column="1"/>
+        <Grid HorizontalAlignment="Left" Height="119" Margin="279,22,-13.333,0" VerticalAlignment="Top" Width="495" Grid.ColumnSpan="2" Grid.Column="1">
+            <Label Content="File Name:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label Content="Save To:" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top"/>
+            <Label Content="Index.txt" x:Name="labelSelectedItemName" HorizontalAlignment="Left" Margin="103,0,0,0" VerticalAlignment="Top" Width="158"/>
+            <TextBox x:Name="tbSaveTo" HorizontalAlignment="Left" Height="19" Margin="103,27,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="239"/>
+            <Button x:Name="btnSelectOutPath" Content="Choose" HorizontalAlignment="Left" Margin="347,27,0,0" VerticalAlignment="Top" Width="52" Height="19" Click="BtnSelectOutPath_Click"/>
+            <Label Content="Output Name:" HorizontalAlignment="Left" Margin="0,50,0,0" VerticalAlignment="Top" Height="25" Width="85"/>
+            <TextBox x:Name="tbOutFileName" HorizontalAlignment="Left" Height="21" Margin="103,54,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="239"/>
+            <Label Content="Encoding:" HorizontalAlignment="Left" Margin="0,75,0,0" VerticalAlignment="Top" Height="25" Width="71"/>
+            <TextBox x:Name="tbEncoding" HorizontalAlignment="Left" Height="21" Margin="103,82,0,0" VerticalAlignment="Top" Width="239"/>
+            <CheckBox Unchecked="CbSaveTo_Unchecked" Checked="CbSaveTo_Checked" x:Name="cbSaveTo" Content="CheckBox" HorizontalAlignment="Left" Margin="423,32,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
+            <CheckBox Unchecked="CbOutFileNameUseDefault_Unchecked" Checked="CbOutFileNameUseDefault_Checked" x:Name="cbOutFileNameUseDefault" Content="CheckBox" HorizontalAlignment="Left" Margin="423,61,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
+            <CheckBox Unchecked="CbEncoding_Unchecked" Checked="CbEncoding_Checked" x:Name="cbEncoding" Content="CheckBox" HorizontalAlignment="Left" Margin="423,88,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
+            <Label Content="Use default" HorizontalAlignment="Left" Margin="399,1,-93,0" VerticalAlignment="Top" Width="158"/>
+        </Grid>
+        <Button Click="Button_Click_1" Content="Remove Selected Item" HorizontalAlignment="Left" Margin="39,281,0,0" VerticalAlignment="Top" Width="220" Height="20" Grid.Column="1"/>
+        <Button Content="Save All" HorizontalAlignment="Left" Margin="39,306,0,0" VerticalAlignment="Top" Width="220" Height="23" Grid.Column="1" Click="Button_Click"/>
+        <TextBox x:Name="labelProgress" Background="DarkBlue" Foreground="Yellow" Grid.ColumnSpan="2" Text="Progress:" HorizontalAlignment="Left" Margin="314,180,0,0" VerticalAlignment="Top" Height="149" Width="388"/>
+
+    </Grid>
+</Window>
