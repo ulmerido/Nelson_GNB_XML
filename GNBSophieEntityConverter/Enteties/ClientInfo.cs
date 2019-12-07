@@ -11,6 +11,7 @@ namespace GNBSophieEntityConverter.Enteties
     {
         public PersonalDetails PersonalDetails { get; set; }
         public List<Transaction> Transactions { get; set; }
+        private const string k_ErrorMsg = "Error in parsing ClientInfo";
 
         public ClientInfo() { }
         public ClientInfo(string path)
@@ -26,7 +27,7 @@ namespace GNBSophieEntityConverter.Enteties
             {
                 allLines = new List<String>(File.ReadLines(path));
 
-                if (!allLines[0].Contains("Client Details:")) throw new Exception("Unknown Format under `Client Details`");
+                if (!allLines[0].Contains("Client Details:")) throw new Exception(k_ErrorMsg + " cant find attribute `Client Details`");
 
                 PersonalDetails = new PersonalDetails();
                 PersonalDetails.ParseFromSophieLine(allLines[1]);

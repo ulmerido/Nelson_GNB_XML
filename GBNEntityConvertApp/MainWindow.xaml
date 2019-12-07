@@ -5,38 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GBNEntityConvertApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="376" Width="781">
-    <Grid Background="AntiqueWhite" Margin="10,0,3.667,-3.333">
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="0*"/>
-        </Grid.RowDefinitions>
+        Title="MainWindow" Height="500" Width="807">
+    <Grid Height="500" Background="AntiqueWhite" Margin="0,0,3.333,-29.333">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0*"/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition Width="311*"/>
+            <ColumnDefinition Width="489*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="btnSelectFile" Content="Add" HorizontalAlignment="Left" Margin="39,253,0,0" VerticalAlignment="Top" Width="220" Height="23" Click="BtnSelectFile_Click" Grid.Column="1"/>
 
-        <ListBox SelectionChanged="ListboxSelectedFiels_SelectionChanged" x:Name="listboxSelectedFile" HorizontalAlignment="Left" Height="215" Margin="39,22,0,0" VerticalAlignment="Top" Width="220" Grid.Column="1"/>
-        <Grid HorizontalAlignment="Left" Height="119" Margin="279,22,-13.333,0" VerticalAlignment="Top" Width="495" Grid.ColumnSpan="2" Grid.Column="1">
+        <Button x:Name="btnSelectFile" Content="Add" HorizontalAlignment="Left" Margin="10,241,0,0" VerticalAlignment="Top" Width="220" Height="23" Click="BtnSelectFile_Click"/>
+
+        <ListBox  SelectionChanged="ListboxSelectedFiels_SelectionChanged" x:Name="listboxSelectedFile" HorizontalAlignment="Left" Height="215" Margin="10,10,0,0" VerticalAlignment="Top" Width="220"/>
+        <Grid x:Name="gridSelectedItemInfo" Height="150" Margin="252,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="528" Grid.ColumnSpan="2">
             <Label Content="File Name:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label Content="Save To:" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top"/>
-            <Label Content="Index.txt" x:Name="labelSelectedItemName" HorizontalAlignment="Left" Margin="103,0,0,0" VerticalAlignment="Top" Width="158"/>
-            <TextBox x:Name="tbSaveTo" HorizontalAlignment="Left" Height="19" Margin="103,27,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="239"/>
+            <Label Content="" x:Name="labelSelectedItemName" HorizontalAlignment="Left" Margin="103,0,0,0" VerticalAlignment="Top" Width="158"/>
+            <TextBox TextChanged="TbSaveTo_TextChanged" x:Name="tbSaveTo" HorizontalAlignment="Left" Height="19" Margin="103,27,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="239"/>
             <Button x:Name="btnSelectOutPath" Content="Choose" HorizontalAlignment="Left" Margin="347,27,0,0" VerticalAlignment="Top" Width="52" Height="19" Click="BtnSelectOutPath_Click"/>
             <Label Content="Output Name:" HorizontalAlignment="Left" Margin="0,50,0,0" VerticalAlignment="Top" Height="25" Width="85"/>
-            <TextBox x:Name="tbOutFileName" HorizontalAlignment="Left" Height="21" Margin="103,54,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="239"/>
+            <TextBox TextChanged="TbOutFileName_TextChanged"  x:Name="tbOutFileName" HorizontalAlignment="Left" Height="21" Margin="103,54,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="239"/>
             <Label Content="Encoding:" HorizontalAlignment="Left" Margin="0,75,0,0" VerticalAlignment="Top" Height="25" Width="71"/>
-            <TextBox x:Name="tbEncoding" HorizontalAlignment="Left" Height="21" Margin="103,82,0,0" VerticalAlignment="Top" Width="239"/>
-            <CheckBox Unchecked="CbSaveTo_Unchecked" Checked="CbSaveTo_Checked" x:Name="cbSaveTo" Content="CheckBox" HorizontalAlignment="Left" Margin="423,32,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
-            <CheckBox Unchecked="CbOutFileNameUseDefault_Unchecked" Checked="CbOutFileNameUseDefault_Checked" x:Name="cbOutFileNameUseDefault" Content="CheckBox" HorizontalAlignment="Left" Margin="423,61,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
-            <CheckBox Unchecked="CbEncoding_Unchecked" Checked="CbEncoding_Checked" x:Name="cbEncoding" Content="CheckBox" HorizontalAlignment="Left" Margin="423,88,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
+            <CheckBox Unchecked="CheckboxSaveToUseDefault_Unchecked" Checked="CheckboxSaveToUseDefault_Checked" x:Name="cbSaveToUseDefault" Content="CheckBox" HorizontalAlignment="Left" Margin="423,32,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
+            <CheckBox Unchecked="CheckboxOutFileNameUseDefault_Unchecked" Checked="CheckboxOutFileNameUseDefault_Checked" x:Name="cbOutFileNameUseDefault" Content="CheckBox" HorizontalAlignment="Left" Margin="423,61,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
+            <CheckBox Unchecked="CheckboxEncodingUseDefault_Unchecked" Checked="CheckboxEncodingUseDefault_Checked" x:Name="cbEncodingUseDefault" Content="CheckBox" HorizontalAlignment="Left" Margin="423,88,0,0" VerticalAlignment="Top" Height="14" Width="20" RenderTransformOrigin="2.017,0.071"/>
             <Label Content="Use default" HorizontalAlignment="Left" Margin="399,1,-93,0" VerticalAlignment="Top" Width="158"/>
+            <Button Click="BtnApplyToAll_Click" x:Name="btnApplyToAll" Content="Apply To All" HorizontalAlignment="Left" Margin="399,106,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.431,0.775"/>
+            <ComboBox SelectionChanged="ComboboxEncodings_SelectionChanged" x:Name="comboboxEncodings" HorizontalAlignment="Left" Height="25" Margin="103,80,0,0" VerticalAlignment="Top" Width="239"/>
         </Grid>
-        <Button Click="Button_Click_1" Content="Remove Selected Item" HorizontalAlignment="Left" Margin="39,281,0,0" VerticalAlignment="Top" Width="220" Height="20" Grid.Column="1"/>
-        <Button Content="Save All" HorizontalAlignment="Left" Margin="39,306,0,0" VerticalAlignment="Top" Width="220" Height="23" Grid.Column="1" Click="Button_Click"/>
-        <TextBox x:Name="labelProgress" Background="DarkBlue" Foreground="Yellow" Grid.ColumnSpan="2" Text="Progress:" HorizontalAlignment="Left" Margin="314,180,0,0" VerticalAlignment="Top" Height="149" Width="388"/>
+        <Button Click="BtnRemoveItem_Click" Content="Remove Selected Item" HorizontalAlignment="Left" Margin="10,269,0,0" VerticalAlignment="Top" Width="220" Height="20"/>
+        <Button Content="Save All" HorizontalAlignment="Left" Margin="10,294,0,0" VerticalAlignment="Top" Width="220" Height="23" Click="BtnSaveAll_Click"/>
+        <TextBox x:Name="labelProgress" Background="DarkBlue" Foreground="Yellow" Text="Progress:" HorizontalAlignment="Left" Margin="252,165,0,0" VerticalAlignment="Top" Height="170" Width="528" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="labelErrors" Background="Black" Foreground="Red" Text="Error Log:" HorizontalAlignment="Left" Margin="10,340,0,0" VerticalAlignment="Top" Height="114" Width="770" Grid.ColumnSpan="2"/>
 
     </Grid>
 </Window>

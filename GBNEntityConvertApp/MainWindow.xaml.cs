@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using GNBSophieEntityConverter;
-using Microsoft.Win32;
 using System.Windows.Forms;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
@@ -25,10 +14,19 @@ namespace GBNEntityConvertApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        
         public MainWindow()
         {
             InitializeComponent();
+            gridSelectedItemInfo.IsEnabled = false;
+
+            comboboxEncodings.Items.Clear();
+            foreach (var en in Encoding.GetEncodings())
+            {
+                comboboxEncodings.Items.Add(en.Name.ToLower());
+            }
         }
+
 
         private void BtnSelectFile_Click(object sender, RoutedEventArgs e)
         {
@@ -43,17 +41,17 @@ namespace GBNEntityConvertApp
 
                 foreach (String name in fileDialog.FileNames)
                 {
-                    /* var converter = new Converter();
-
-                     converter.Convert(name);
-                     allFiles.Append(name.Replace(" ", String.Empty));
-                     allFiles.Append(Environment.NewLine)
-                     ;*/
-
                     var arg = new ConvertArgs(name);
                     if( !listboxSelectedFile.Items.Contains(arg))
                         listboxSelectedFile.Items.Add(arg);
                 }
+            }
+
+            if (!listboxSelectedFile.Items.IsEmpty)
+            {
+                gridSelectedItemInfo.IsEnabled = true;
+                listboxSelectedFile.SelectedItem = listboxSelectedFile.Items[0];
+
             }
 
 
@@ -61,97 +59,119 @@ namespace GBNEntityConvertApp
 
         private void BtnSelectOutPath_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Multiselect = true;
-            fileDialog.Filter = "Text files|*.txt|Log Files|*.log|All Files|*.*";
-            fileDialog.DefaultExt = ".txt";
-            var dialogOk = fileDialog.ShowDialog();
-            if (dialogOk == true)
+            using (var fbd = new FolderBrowserDialog())
             {
-                StringBuilder allFiles = new StringBuilder(String.Empty);
+                DialogResult result = fbd.ShowDialog();
 
-                foreach (String name in fileDialog.FileNames)
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    /* var converter = new Converter();
-
-                     converter.Convert(name);
-                     allFiles.Append(name.Replace(" ", String.Empty));
-                     allFiles.Append(Environment.NewLine);*/
-                    listboxSelectedFile.Items.Add(name);
+                    tbSaveTo.Text = fbd.SelectedPath;
                 }
             }
 
+        }
 
+        private void BtnSaveAll_Click(object sender, RoutedEventArgs e)
+        {
+            List<ConvertArgs> doneArgs = new List<ConvertArgs>();
+            StringBuilder builder = new StringBuilder("Progress:");
+            StringBuilder errorBuilder = new StringBuilder("Errors");
+            int countFail = 0;
+            int countGood = 0;
+
+            foreach (ConvertArgs arg in listboxSelectedFile.Items)
+            {
+                Converter converter = new Converter();
+                try
+                {
+                    builder.AppendLine("");
+                    builder.Append("Converting [");
+                    builder.Append(System.IO.Path.GetFileName(arg.Input));
+                    builder.AppendLine("] To xml file...");
+                    converter.Convert(arg.Input, arg.SaveTo, arg.OutputFileName, arg.Encoding);
+                    countGood++;
+                    builder.AppendLine("Done.");
+                    doneArgs.Add(arg);
+
+                }
+                catch (Exception ex)
+                {
+                    countFail++;
+                    builder.AppendLine("Aborted");
+                    errorBuilder.AppendLine("");
+                    errorBuilder.AppendLine("Error with file:\t" + System.IO.Path.GetFileName(arg.Input));
+                    errorBuilder.AppendLine("\t\tError MSG:" + Environment.NewLine + "\t\t"+ex.Message);
+
+                }
+                finally
+                {
+                    labelProgress.Text = builder.ToString();
+                    labelErrors.Text = errorBuilder.ToString();
+                }
+            }
+           
+            foreach(var done in doneArgs)
+            {
+                if(listboxSelectedFile.Items!= null)
+                {
+                    listboxSelectedFile.Items.Remove(done);
+                    if(listboxSelectedFile.Items.IsEmpty)
+                    {
+                        gridSelectedItemInfo.IsEnabled = false;
+                    }
+                }
+            }
+
+            string amountConvertedMsg = "Done: " + countGood + "/" + (countGood + countFail) + " converted";
+            System.Windows.MessageBox.Show(amountConvertedMsg, "App");
+
+
+        }
+
+        private void BtnRemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            listboxSelectedFile.Items.Remove(listboxSelectedFile.SelectedItem);
+            if (listboxSelectedFile.Items.IsEmpty)
+            {
+                gridSelectedItemInfo.IsEnabled = false;
+            }
+        }
+
+        private void BtnApplyToAll_Click(object sender, RoutedEventArgs e)
+        {
+            int i = 1;
+            foreach(ConvertArgs arg in listboxSelectedFile.Items)
+            {
+                arg.Encoding = comboboxEncodings.SelectedItem.ToString();
+                arg.SaveTo = tbSaveTo.Text;
+                if (cbOutFileNameUseDefault.IsChecked == false)
+                {
+                    arg.OutputFileName = tbOutFileName.Text + "_" + i++;
+                    arg.IsDefaultOutputFileName = false;
+                }
+
+                if (cbSaveToUseDefault.IsChecked == false)
+                {
+                    arg.SaveTo = tbSaveTo.Text;
+                    arg.IsDefaultSaveTo = false;
+                }
+
+                if (cbEncodingUseDefault.IsChecked == false)
+                {
+                    arg.Encoding = comboboxEncodings.SelectedItem.ToString();
+                    arg.IsDefaultEncoding = false;
+                }
+            }
         }
 
         private void ListBoxSelectedItem_Click(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             labelSelectedItemName.Content = arg.ToString();
-            tbEncoding.Text = arg.Encoding;
+            comboboxEncodings.SelectedItem = arg.Encoding.ToLower();
             tbOutFileName.Text = arg.OutputFileName;
             tbSaveTo.Text = arg.SaveTo;
 
-        }
-
-        private class ConvertArgs
-        {
-            public string Input { get; }
-            public string SaveTo { get; set; }
-            public string OutputFileName { get; set; }
-            public string Encoding { get; set; }
-            public bool IsDefaultEncoding { get; set; }
-            public bool IsDefaultSaveTo { get; set; }
-            public bool IsDefaultOutputFileName { get; set; }
-
-            public ConvertArgs(string input)
-            {
-                Input = input;
-                ResetDefault();
-            }
-
-            public void DefaultSaveTo()
-            {
-                IsDefaultSaveTo = true;
-                SaveTo = Input.Replace(System.IO.Path.GetFileName(Input), String.Empty);
-            }
-
-            public void DefaultOutputFileName()
-            {
-                IsDefaultOutputFileName = true;
-                OutputFileName = System.IO.Path.GetFileNameWithoutExtension(Input);
-            }
-
-            public void DefaultEncoding()
-            {
-                IsDefaultEncoding = true;
-                Encoding = "Windows-1257";
-            }
-
-            public void ResetDefault()
-            {
-                DefaultSaveTo();
-                DefaultOutputFileName();
-                DefaultEncoding();
-            }
-
-            public override string ToString()
-            {
-                return System.IO.Path.GetFileName(Input);
-            }
-
-            public override bool Equals(object obj)
-            {
-                if(obj is ConvertArgs)
-                {
-                    var arg = obj as ConvertArgs;
-                    return arg.Input == this.Input && arg.OutputFileName == this.OutputFileName && arg.Encoding == this.Encoding && arg.SaveTo == this.SaveTo;
-                }
-                else
-                {
-                    return false;
-                }
-            }
         }
 
         private void ListboxSelectedFiels_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -164,16 +184,16 @@ namespace GBNEntityConvertApp
                 return;
             }
             labelSelectedItemName.Content = arg.ToString();
-            tbEncoding.Text = arg.Encoding;
+            comboboxEncodings.SelectedItem = arg.Encoding.ToLower(); ;
             tbOutFileName.Text = arg.OutputFileName;
             tbSaveTo.Text = arg.SaveTo;
 
-            cbEncoding.IsChecked = arg.IsDefaultEncoding;
+            cbEncodingUseDefault.IsChecked = arg.IsDefaultEncoding;
             cbOutFileNameUseDefault.IsChecked = arg.IsDefaultOutputFileName;
-            cbSaveTo.IsChecked = arg.IsDefaultSaveTo;
+            cbSaveToUseDefault.IsChecked = arg.IsDefaultSaveTo;
         }
 
-        private void CbOutFileNameUseDefault_Checked(object sender, RoutedEventArgs e)
+        private void CheckboxOutFileNameUseDefault_Checked(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             arg.DefaultOutputFileName();
@@ -181,84 +201,127 @@ namespace GBNEntityConvertApp
             tbOutFileName.Text = arg.OutputFileName;
         }
 
-        private void CbOutFileNameUseDefault_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckboxOutFileNameUseDefault_Unchecked(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             arg.IsDefaultOutputFileName = false;
             tbOutFileName.IsEnabled = true;
         }
 
-        private void CbSaveTo_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckboxSaveToUseDefault_Unchecked(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             arg.IsDefaultSaveTo = false;
             tbSaveTo.IsEnabled = true;
+            btnSelectOutPath.IsEnabled = true;
+
         }
 
-        private void CbSaveTo_Checked(object sender, RoutedEventArgs e)
+        private void CheckboxSaveToUseDefault_Checked(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             arg.DefaultSaveTo();
             tbSaveTo.IsEnabled = false;
+            btnSelectOutPath.IsEnabled = false;
             tbSaveTo.Text = arg.SaveTo;
+
         }
 
-        private void CbEncoding_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckboxEncodingUseDefault_Unchecked(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             arg.IsDefaultEncoding = false;
-            tbEncoding.IsEnabled = true;
+            comboboxEncodings.IsEnabled = true;
         }
 
-        private void CbEncoding_Checked(object sender, RoutedEventArgs e)
+        private void CheckboxEncodingUseDefault_Checked(object sender, RoutedEventArgs e)
         {
             ConvertArgs arg = listboxSelectedFile.SelectedItem as ConvertArgs;
             arg.DefaultEncoding();
-            tbEncoding.IsEnabled = false;
-            tbEncoding.Text = arg.SaveTo;
+            comboboxEncodings.IsEnabled = false;
+            comboboxEncodings.SelectedItem = arg.Encoding.ToLower();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void TbSaveTo_TextChanged(object sender, TextChangedEventArgs e)
         {
-            List<ConvertArgs> doneArgs = new List<ConvertArgs>();
+            var item = listboxSelectedFile.SelectedItem as ConvertArgs;
+            if (item == null) return;
+            item.SaveTo = tbSaveTo.Text;
+        }
+       
+        private void TbOutFileName_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
-            foreach (ConvertArgs arg in listboxSelectedFile.Items)
-            {
-                StringBuilder builder = new StringBuilder(labelProgress.Text);
-                Converter converter = new Converter();
-                try
-                {
-                    builder.AppendLine("");
-                    builder.Append("Converting [");
-                    builder.Append(System.IO.Path.GetFileName(arg.Input));
-                    builder.AppendLine("] To xml file...");
-                    converter.Convert(arg.Input, arg.SaveTo, arg.OutputFileName, arg.Encoding);
-                    builder.AppendLine("Done.");
-                    doneArgs.Add(arg);
-                }
-                catch (Exception ex)
-                {
-                    builder.AppendLine("Error" + ex.Message);
-                }
-                finally
-                {
-                    labelProgress.Text = builder.ToString();
-                }
-            }
-
-            //listboxSelectedFile.SelectionMode = ;
-            foreach(var done in doneArgs)
-            {
-                if(listboxSelectedFile.SelectedItems.Count>0)
-                {
-                    listboxSelectedFile.SelectedItems.Remove(done);
-                }
-            }
+            var item = listboxSelectedFile.SelectedItem as ConvertArgs;
+            if (item == null) return;
+            item.OutputFileName = tbOutFileName.Text;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ComboboxEncodings_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            listboxSelectedFile.Items.Remove(listboxSelectedFile.SelectedItem);
+            var item = listboxSelectedFile.SelectedItem as ConvertArgs;
+            if (item == null) return;
+            item.Encoding = comboboxEncodings.SelectedItem.ToString();
+        }
+    }
+
+    public class ConvertArgs
+    {
+        public string Input { get; }
+        public string SaveTo { get; set; }
+        public string OutputFileName { get; set; }
+        public string Encoding { get; set; }
+        public bool IsDefaultEncoding { get; set; }
+        public bool IsDefaultSaveTo { get; set; }
+        public bool IsDefaultOutputFileName { get; set; }
+
+        public ConvertArgs(string input)
+        {
+            Input = input;
+            ResetDefault();
+        }
+
+        public void DefaultSaveTo()
+        {
+            IsDefaultSaveTo = true;
+            SaveTo = Input.Replace(System.IO.Path.GetFileName(Input), String.Empty);
+        }
+
+        public void DefaultOutputFileName()
+        {
+            IsDefaultOutputFileName = true;
+            OutputFileName = System.IO.Path.GetFileNameWithoutExtension(Input);
+        }
+
+        public void DefaultEncoding()
+        {
+            IsDefaultEncoding = true;
+            Encoding = "Windows-1257";
+        }
+
+        public void ResetDefault()
+        {
+            DefaultSaveTo();
+            DefaultOutputFileName();
+            DefaultEncoding();
+        }
+
+        public override string ToString()
+        {
+            return System.IO.Path.GetFileName(Input);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ConvertArgs)
+            {
+                var arg = obj as ConvertArgs;
+                return arg.Input == this.Input && arg.OutputFileName == this.OutputFileName && arg.Encoding == this.Encoding && arg.SaveTo == this.SaveTo;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

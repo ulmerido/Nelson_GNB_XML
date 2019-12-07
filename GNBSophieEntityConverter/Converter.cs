@@ -7,6 +7,10 @@ using System.Xml.Serialization;
 
 namespace GNBSophieEntityConverter
 {
+
+    /// <summary>
+    /// Convertering GNB ClientInfo text file to xml file
+    /// </summary>
     public class Converter
     {
         const string k_XmlExtension = ".xml";
@@ -21,6 +25,7 @@ namespace GNBSophieEntityConverter
             var xmlNameSpace = new XmlSerializerNamespaces();
             var xmlSettings = new XmlWriterSettings();
             var xdoc = new XmlDocument();
+            if (!i_OutputPath.EndsWith(Path.DirectorySeparatorChar.ToString())) i_OutputPath += Path.DirectorySeparatorChar;
             var outPath = i_OutputPath + i_outputFileName + k_XmlExtension;
 
             xmlNameSpace.Add(String.Empty, String.Empty);
