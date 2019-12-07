@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using GNBSophieEntityConverter;
 using Microsoft.Win32;
 using System.Windows.Forms;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+
 namespace GBNEntityConvertApp
 {
     /// <summary>
