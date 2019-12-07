@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GNBSophieEntityConverter;
 using Microsoft.Win32;
+using System.Windows.Forms;
 namespace GBNEntityConvertApp
 {
     /// <summary>
